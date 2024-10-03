@@ -20,7 +20,8 @@
     "build:css": "postcss src/css/tailwind.css -o src/css/styles.css"
   },
   "dependencies": {
-    "@vitejs/plugin-react": "^1.3.2",
+    "axios": "^1.7.7",
+    "fireworks-js": "^2.10.8",
     "prop-types": "^15.8.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -30,9 +31,12 @@
     "zmp-ui": "latest"
   },
   "devDependencies": {
+    "@babel/core": "^7.25.2",
+    "@babel/preset-env": "^7.25.4",
     "@types/react": "^18.3.1",
     "@types/react-dom": "^18.3.0",
     "@types/react-router-dom": "^5.3.3",
+    "@vitejs/plugin-react": "^1.3.2",
     "autoprefixer": "^10.4.19",
     "cross-env": "^7.0.3",
     "postcss": "^8.4.38",

@@ -1,15 +1,15 @@
 {
   "app": {
-    "title": "zalo-mini-app-rut-qua",
-    "headerTitle": "zmp-blank-templates",
-    "headerColor": "#1843EF",
+    "title": "Rút quà",
+    "headerColor": "",
     "textColor": "white",
     "textAlign": "left",
-    "statusBarColor": "#1843EF",
-    "leftButton": "back",
-    "statusBar": "normal",
-    "actionBarHidden": false,
+   "statusBarColor": "transparent",
+    "leftButton": "none",
+    "statusBar": "transparent",
+    "actionBarHidden": true,
     "hideAndroidBottomNavigationBar": false,
+    "selfControlLoading": false,
     "hideIOSSafeAreaBottom": false
   },
   "debug": false,

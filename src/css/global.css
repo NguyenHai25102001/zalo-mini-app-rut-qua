@@ -1,0 +1,23 @@
+.bg-main{
+     background: linear-gradient(180deg, #FFE9ED 0%, #FF6482 47.66%, #FFE6EB 100%);
+    
+}
+
+body{
+     user-select: none;
+}
+img {
+    -webkit-user-drag: none;
+    user-drag: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    pointer-events: auto; /* Đảm bảo pointer-events được bật để cho phép click */
+}
+
+.zaui-snackbar-top {
+   
+     top: 40px !important;
+ }
