@@ -14,19 +14,23 @@ import {
   requestCameraPermission
 } from "zmp-sdk/apis";
 import axios from "axios";
-import { api, app_id, IdOa, secret_key } from "api";
+import { api, app_id, baseUrl, IdOa, requests, secret_key } from "api";
 import { GetSettingReturn } from "zmp-sdk";
 import { Link } from "react-router-dom";
+import { CheckWithdrawal } from "types/types";
+import Swal from "sweetalert2";
 
 const HomePage: React.FunctionComponent = () => {
   const navigate = useNavigate();
   const [is_checked_code, setIsCheckedCode] = React.useState(false);
-  const [code, setCode] = React.useState<string>("tesst");
+  const [code, setCode] = React.useState<string>("");
   const [showPhone, setShowPhone] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showFollow, setShowFollow] = useState<boolean>(false);
   const { user, phoneUser, setPhoneUser, setUser } = React.useContext(AppContext);
-
+  const [statusGiftUser, setStatusGiftUser] = React.useState<number | null>(null);
+  const [imageGift, setImageGift] = React.useState<string>("");
+  const [checkWithdraw, setCheckWithdraw] = React.useState<CheckWithdrawal>();
 
   const handleDrawGifts = (name: string) => {
     navigate("/gift", { state: { name, code } });
@@ -66,6 +70,7 @@ const HomePage: React.FunctionComponent = () => {
           position: "top",
           duration: 3000,
         });
+        // checkWithdrawGift
       } else {
         setCode(code);
         setIsCheckedCode(true);
@@ -139,30 +144,51 @@ const HomePage: React.FunctionComponent = () => {
     }
   };
 
+  useEffect(() => {
+    console.log(checkWithdraw);
+
+  }, [checkWithdraw]);
+
+
+
   // Check if the user has already withdrawn a gift
   const checkWithdrawGift = async () => {
     try {
+
+
       const res = await axios.get(api.checkWithdrawGift(), {
         params: { phone: phoneUser },
       });
 
-      if (res.data.status !== 1) {
-        navigate("/gift", { state: { name: res.data.data.name, code: res.data.data.code } });
-        openSnackbar({
-          type: "warning",
-          text: "Bạn đã rút quà",
-          position: "top",
-          duration: 3000,
-        });
+      setCheckWithdraw(res.data);
+
+      switch (res.data.status) {
+        case 1:
+          setStatusGiftUser(1);
+          break;
+        case 2:
+          setStatusGiftUser(2);
+          break;
+        case 3:
+          setStatusGiftUser(3);
+          setCode(res.data.info_withdraw.code_invoice_kiotviet);
+          setIsCheckedCode(true);
+          break;
+        case 0:
+          setStatusGiftUser(0);
+          setImageGift(`${baseUrl}${res.data.gift.image}`);
+          break;
+        default:
+          // Handle unexpected status values if necessary
+          break;
       }
     } catch (error) {
       console.error(error);
     }
   };
 
-  useEffect(() => {
-    checkWithdrawGift();
-  }, [phoneUser]);
+
+
 
   const handleLogin = async () => {
     try {
@@ -181,6 +207,7 @@ const HomePage: React.FunctionComponent = () => {
       const phoneNumber = String(response.data?.data?.number).replace("84", "0");
       checkFollowStatus(phoneNumber);
       setPhoneUser(phoneNumber);
+      // setPhoneUser("0354583362");
     } catch (error) {
       console.error(error);
     } finally {
@@ -191,7 +218,7 @@ const HomePage: React.FunctionComponent = () => {
   const getSettingUser = async () => {
     try {
       const { authSetting } = await getSetting({});
-   
+
       if (authSetting["scope.userPhonenumber"]) {
         handleLogin();
       }
@@ -201,15 +228,57 @@ const HomePage: React.FunctionComponent = () => {
   };
   useEffect(() => {
     getSettingUser();
-  } ,[]);
+  }, []);
 
 
- 
+
   useEffect(() => {
     if (user?.followedOA === false && !!phoneUser) {
       setShowFollow(true);
     }
   }, [phoneUser, user?.followedOA]);
+
+
+  useEffect(() => {
+    if (phoneUser) {
+      checkWithdrawGift();
+    }
+  }, [phoneUser]);
+
+
+
+  const checkIsUserGift = async () => {
+    try {
+      const result = await Swal.fire({
+        title: "Xác nhận quà?",
+        text: "Bạn đã nhận từ nhân viên chưa?",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        cancelButtonText: "Chưa nhận",
+        confirmButtonText: "Đã nhận",
+      });
+
+      if (result.isConfirmed) {
+        try {
+          const res = await requests({
+            url: api.update_is_user_gift(),
+            method: "POST",
+            data: { phone: phoneUser }
+          });
+
+          checkWithdrawGift();
+          if (res?.data.status === 1) {
+            checkWithdrawGift();
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
 
   return (
@@ -219,15 +288,79 @@ const HomePage: React.FunctionComponent = () => {
       <img src={images.bg_bottom_right} className="absolute  bottom-0 right-0  w-[100px]" alt="" />
       <img src={images.bg_top_right} className="absolute  top-0 right-0  w-[100px]" alt="" />
 
-
       <div className="absolute top-[50px] z-10 w-full flex justify-center left-0">
         <img src={images.banner_mini_gamer} alt="" className="w-[85%]" />
       </div>
 
+
       {
-        is_checked_code ? <WithdrawGift handleDrawGifts={handleDrawGifts} /> :
-          <FormCode handleCheckCode={handleCheckCode} />
+        statusGiftUser === 1 && (
+          is_checked_code ?
+            <WithdrawGift handleDrawGifts={handleDrawGifts} /> :
+            <FormCode handleCheckCode={handleCheckCode} />
+        )
       }
+      {
+        statusGiftUser === 3 && (
+          is_checked_code &&
+          <WithdrawGift handleDrawGifts={handleDrawGifts} />
+        )
+      }
+
+
+      {
+        statusGiftUser === 2 && (
+          <>
+            <div className="absolute top-[50%] left-0 w-full -translate-y-[50%] overflow-auto p-4">
+              <div className="text-center flex justify-center">
+                <img src={images.box_gift} alt="" className="shake" />
+              </div>
+              <p className="text-center element text-4xl w-full font-semibold" style={{ fontFamily: 'SVN-KongaPro' }}>
+                Đang chờ người thân
+                <br />
+                của bạn rút quà...</p>
+
+            </div>
+
+            <div className="absolute bottom-6 left-0 w-full flex justify-center ">
+              <img src={images.btn_lam_moi} alt="" className=" bject-contain" onClick={checkWithdrawGift} />
+            </div>
+
+          </>
+        )
+      }
+      {
+        statusGiftUser === 0 && (
+          <>
+            <div className="absolute top-[55%] left-0 w-full -translate-y-[50%] overflow-auto p-4">
+              <div className="text-center flex justify-center">
+                <img src={imageGift} alt="" className="h-[450px]" />
+
+              </div>
+
+            </div>
+
+            {
+              checkWithdraw?.type === 1 && (
+                <div className="absolute bottom-3 left-0 w-full flex justify-center ">
+                  <img src={images.thong_diep} alt="" className=" bject-contain" />
+                </div>
+              )
+            }
+            {
+              checkWithdraw?.type === 0 && (
+                <div className="absolute bottom-3 left-0 w-full flex justify-center ">
+                  <img src={images.button_nhan_qua} alt="" className=" bject-contain" onClick={checkIsUserGift} />
+                </div>
+              )
+            }
+
+
+          </>
+        )
+      }
+
+
       <ZMPSheet
         mask
         visible={showPhone}

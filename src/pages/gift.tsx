@@ -6,6 +6,9 @@ import successSound from '../components/assets/audio/successSound.mp3';
 import FireworksEffect from 'components/FireworksEffect ';
 import { api, baseUrl, requests } from 'api';
 import { AppContext } from 'components/context/MyContext';
+import axios from 'axios';
+import Swal from 'sweetalert2';
+import { CheckWithdrawal } from 'types/types';
 
 
 interface IGiftProps {
@@ -24,7 +27,8 @@ const Gift = () => {
     const [imageGift, setImageGift] = React.useState<string>("");
     const [isCheckGiftRelative, setIsCheckGiftRelative] = React.useState<boolean>(false);
     const [isGiftSuccess, setIsGiftSuccess] = React.useState<boolean>(false);
-
+    const [statusGiftUser, setStatusGiftUser] = React.useState<number | null>(null);
+    const [checkWithdraw, setCheckWithdraw] = React.useState<CheckWithdrawal>();
     const { name, code } = location.state as IGiftProps;
 
     const phoneRegex = /^[0-9]{10}$/;
@@ -134,6 +138,8 @@ const Gift = () => {
 
     // Copy gift link to clipboard
     const handleCopyLink = () => {
+        console.log(window.location.href);
+
         const baseUrl = window.location.href.split('/gift')[0];
 
         if (!phoneRelative || !code) {
@@ -145,7 +151,7 @@ const Gift = () => {
             });
             return;
         }
-        const link = `${baseUrl}/gift-relatives?code=${code}&phone=${phoneRelative}`;
+        const link = `https://zalo.me/s/1017356468012563396/gift-relatives/?env=DEVELOPMENT&version=zdev-13f37aa1?code=${code}&phone=${phoneRelative}`;
         navigator.clipboard.writeText(link)
             .then(() => {
                 openSnackbar({
@@ -166,6 +172,72 @@ const Gift = () => {
             });
     };
 
+
+    // Check if the user has already withdrawn a gift
+    const checkWithdrawGift = async () => {
+        try {
+
+
+            const res = await axios.get(api.checkWithdrawGift(), {
+                params: { phone: phoneUser },
+            });
+
+            setCheckWithdraw(res.data);
+
+            switch (res.data.status) {
+                case 1:
+                    setStatusGiftUser(1);
+                    break;
+                case 2:
+                    setStatusGiftUser(2);
+                    break;
+                case 3:
+                    setStatusGiftUser(3);
+                    break;
+                case 0:
+                    setStatusGiftUser(0);
+                    setImageGift(`${baseUrl}${res.data.gift.image}`);
+                    break;
+                default:
+                    // Handle unexpected status values if necessary
+                    break;
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    };
+    const UpdateIsUserGift = async () => {
+        try {
+            const result = await Swal.fire({
+                title: "Xác nhận quà?",
+                text: "Bạn đã nhận từ nhân viên chưa?",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                cancelButtonText: "Chưa nhận",
+                confirmButtonText: "Đã nhận",
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    const res = await requests({
+                        url: api.update_is_user_gift(),
+                        method: "POST",
+                        data: { phone: phoneUser }
+                    });
+
+                    checkWithdrawGift();
+                    if (res?.data.status === 1) {
+                        checkWithdrawGift();
+                    }
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
     return (
         <Page className='page bg-main relative'>
@@ -213,11 +285,13 @@ const Gift = () => {
                 isReceived && name === 'tu-rut-qua' && (
                     <>
                         <div className="absolute top-[55%] -translate-y-[50%] left-[50%] -translate-x-[50%] w-full flex justify-center">
-                            <img src={imageGift} alt="" className='w-[70%] animate-zoom-rotate' />
+                            <img src={imageGift} alt="" className=' animate-zoom-rotate h-[350px] object-contain' />
                         </div>
+
                         <div className="absolute bottom-10 w-full left-0 flex justify-center">
                             {
-                                <img src={images.button_nhan_qua} alt="" onClick={() => { navigate("/") }} />
+                                checkWithdraw?.type === 1 ? <img src={images.thong_diep} alt="" className=" object-contain" /> :
+                                    <img src={images.button_nhan_qua} alt="" onClick={UpdateIsUserGift} />
                             }
                         </div>
                     </>

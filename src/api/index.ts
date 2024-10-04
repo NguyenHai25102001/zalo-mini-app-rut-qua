@@ -11,6 +11,7 @@ export const api = {
     checkWithdrawGift: () => baseUrl + "api/mini-game-2010/check-withdraw",
     createWithdrawGiftRelative: () => baseUrl + "api/mini-game-2010/create-withdraw-gifts-relative",
     withdrawGift: () => baseUrl + "api/mini-game-2010/withdraw-gifts",
+    update_is_user_gift: () => baseUrl + "api/mini-game-2010/update-is-user-gift",
 }
 const requests = async ({ url, method, data, params }: ApiProp) => {
     try {

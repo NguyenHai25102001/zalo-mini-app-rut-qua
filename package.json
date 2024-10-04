@@ -27,6 +27,7 @@
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.23.0",
     "recoil": "^0.7.7",
+    "sweetalert2": "^11.14.1",
     "zmp-sdk": "latest",
     "zmp-ui": "latest"
   },

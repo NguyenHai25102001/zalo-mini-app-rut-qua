@@ -16,6 +16,9 @@ import bg_form_sdt_nguoi_than from './bg-form-sdt-nguoi-than.png'
 import btn_gui_nguoi_than from './btn-gui-nguoi-than.png'
 import btn_rut_qua from './btn-rut-qua.png'
 import btb_gui from './btn-gui.png'
+import box_gift from './box_gift.png';
+import btn_lam_moi from './btn-lam-moi.png'
+import thong_diep from './thong-diep.png'
 const images = {
     banner_mini_gamer,
     nhap_ma_hoa_don,
@@ -34,7 +37,10 @@ const images = {
     bg_form_sdt_nguoi_than,
     btn_gui_nguoi_than,
     btn_rut_qua,
-    btb_gui
+    btb_gui,
+    box_gift,
+    btn_lam_moi,
+    thong_diep
 
 }
 export { images }
