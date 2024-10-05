@@ -1,7 +1,7 @@
 import { images } from 'components/assets/images';
 import React, { useContext, useLayoutEffect } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { Page, useSnackbar } from 'zmp-ui';
+import { Icon, Page, useSnackbar } from 'zmp-ui';
 import successSound from '../components/assets/audio/successSound.mp3';
 import FireworksEffect from 'components/FireworksEffect ';
 import { api, baseUrl, requests } from 'api';
@@ -9,6 +9,7 @@ import { AppContext } from 'components/context/MyContext';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { CheckWithdrawal } from 'types/types';
+import { IconString } from 'zmp-ui/icon';
 
 
 interface IGiftProps {
@@ -241,6 +242,9 @@ const Gift = () => {
 
     return (
         <Page className='page bg-main relative'>
+            <div className="absolute top-7 left-0" onClick={() => navigate(-1)}>
+                <Icon icon="zi-arrow-left" className="font-bold py-3 px-3" size={30} />
+            </div>
 
             <img src={images.bg_top_right} className="absolute  top-0 right-0  w-[100px]" alt="" />
 

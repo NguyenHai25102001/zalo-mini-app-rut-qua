@@ -323,6 +323,7 @@ const HomePage: React.FunctionComponent = () => {
   return (
     <Page className="page bg-main relative ">
       {/* bottom left */}
+      
       <img src={images.bg_bottom_left} className="absolute  bottom-0 left-0 w-[100px]" alt="" />
       <img src={images.bg_bottom_right} className="absolute  bottom-0 right-0  w-[100px]" alt="" />
       <img src={images.bg_top_right} className="absolute  top-0 right-0  w-[100px]" alt="" />
